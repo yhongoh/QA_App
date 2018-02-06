@@ -1,11 +1,14 @@
 package jp.techacademy.hongou.yuka.qa_app;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -19,6 +22,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,8 +31,6 @@ public class QuestionDetailActivity extends AppCompatActivity implements View.On
     private Question mQuestion;
     private QuestionDetailListAdapter mAdapter;
     boolean mIsFavorite;
-
-    private DatabaseReference mAnswerRef;
 
     private ChildEventListener mEventListener = new ChildEventListener() {
         @Override
@@ -86,6 +88,11 @@ public class QuestionDetailActivity extends AppCompatActivity implements View.On
                 if (favoriteUid.equals(mQuestion.getQuestionUid())) {
                     mIsFavorite = true;
                     Log.d("mIsFavorite3", String.valueOf(mIsFavorite));
+
+                    Button mFavoriteButton = (Button) findViewById(R.id.favoriteButton);
+                    mFavoriteButton.setText("お気に入りを解除");
+                    mFavoriteButton.setBackgroundColor(Color.GRAY);
+                    mFavoriteButton.setVisibility(View.VISIBLE);
                 }
            }
 
@@ -97,7 +104,14 @@ public class QuestionDetailActivity extends AppCompatActivity implements View.On
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
                 Log.d("onChildRemoved_favorite",String.valueOf(dataSnapshot));
-            }
+                mIsFavorite = false;
+
+                Button mFavoriteButton = (Button) findViewById(R.id.favoriteButton);
+                mFavoriteButton.setText("お気に入りに追加");
+                int color = ContextCompat.getColor(getApplicationContext(), R.color.colorPrimary);
+                mFavoriteButton.setBackgroundColor(color);
+                mFavoriteButton.setVisibility(View.VISIBLE);
+                }
 
             @Override
             public void onChildMoved(DataSnapshot dataSnapshot, String s) {
@@ -163,6 +177,7 @@ public class QuestionDetailActivity extends AppCompatActivity implements View.On
 
     @Override
     public void onClick(View view) {
+        Log.d("onClick", "onClick");
         //ログイン済みのユーザーを取得する
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -182,6 +197,15 @@ public class QuestionDetailActivity extends AppCompatActivity implements View.On
 
                 //UID
                 favorite.put("Uid", FirebaseAuth.getInstance().getCurrentUser().getUid());
+
+                //Title
+                favorite.put("Title",mQuestion.getTitle());
+
+                //Body
+                favorite.put("Body",mQuestion.getBody());
+
+                //Image
+                //favorite.put("Image", bitmapString);
 
                 Log.d("mIsFavorite", String.valueOf(mIsFavorite));
 

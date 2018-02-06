@@ -52,10 +52,6 @@ public class FavoriteQuestionListAdapter extends BaseAdapter {
         TextView nameText = (TextView) convertView.findViewById(R.id.nameTextView);
         nameText.setText(mFavoriteQuestionArrayList.get(position).getName());
 
-        TextView resText = (TextView) convertView.findViewById(R.id.resTextView);
-        int resNum = mFavoriteQuestionArrayList.get(position).getAnswers().size();
-        resText.setText(String.valueOf(resNum));
-
         byte[] bytes = mFavoriteQuestionArrayList.get(position).getImageBytes();
         if (bytes.length != 0) {
             Bitmap image = BitmapFactory.decodeByteArray(bytes, 0, bytes.length).copy(Bitmap.Config.ARGB_8888, true);

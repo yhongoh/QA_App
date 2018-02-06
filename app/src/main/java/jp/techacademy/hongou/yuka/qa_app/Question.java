@@ -1,5 +1,7 @@
 package jp.techacademy.hongou.yuka.qa_app;
 
+import android.util.Log;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -58,5 +60,6 @@ public class Question implements Serializable {
         mGenre = genre;
         mBitmapArray = bytes.clone();
         mAnswerArrayList = answers;
+        Log.d("mTitle", String.valueOf(mTitle));
     }
 }

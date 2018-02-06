@@ -80,7 +80,7 @@ public class LoginActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     //成功した場合
                     FirebaseUser user = mAuth.getCurrentUser();
-                    DatabaseReference useRef = mDatabaseReference.child(Const.UsersPATH).child(user.getUid());
+                    DatabaseReference userRef = mDatabaseReference.child(Const.UsersPATH).child(user.getUid());
 
                     if (mIsCreateAccount) {
                         //アカウント作成時はFirebaseに表示名を保存する
@@ -88,15 +88,15 @@ public class LoginActivity extends AppCompatActivity {
 
                         Map<String, String> data = new HashMap<String, String>();
                         data.put("name", name);
-                        useRef.setValue(data);
+                        userRef.setValue(data);
 
                         // 表示名をPrefarenceに保存する
                         saveName(name);
                     } else {
-                        useRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot snapshot) {
-                                Map data = snapshot.getValue(Map.class);
+                                Map data = (Map) snapshot.getValue();
                                 saveName((String) data.get("name"));
                             }
 
