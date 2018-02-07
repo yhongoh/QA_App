@@ -134,9 +134,9 @@ public class MainActivity extends AppCompatActivity {
             HashMap map = (HashMap) dataSnapshot.getValue();
             String title = (String) map.get("Title");
             String body = (String) map.get("Body");
-            String name = (String) map.get("name");
-            String uid = (String) map.get("uid");
-            String imageString = (String) map.get("image");
+            String name = (String) map.get("Name");
+            String uid = (String) map.get("Uid");
+            String imageString = (String) map.get("Image");
             byte[] bytes;
             if (imageString != null) {
                 bytes = Base64.decode(imageString, Base64.DEFAULT);
@@ -144,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
                 bytes = new byte[0];
             }
 
-            FavoriteQuestion favoriteQuestion = new FavoriteQuestion(title, body, name, uid, dataSnapshot.getKey(), bytes);
+            FavoriteQuestion favoriteQuestion = new FavoriteQuestion(title, body, name,uid, dataSnapshot.getKey(), bytes);
             mFavoriteQuestionArrayList.add(favoriteQuestion);
             mFavoriteAdapter.notifyDataSetChanged();
         }
@@ -249,10 +249,10 @@ public class MainActivity extends AppCompatActivity {
 
             if (mGenre == 5) {
                 //お気に入り質問のリストをクリアしてから再度Adapterにセットし、AdapterをListViewにセットし直す
-                mFavoriteQuestionArrayList.clear();
+                mQuestionArrayList.clear();
                 Log.d("clear2", "clear2");
-                mFavoriteAdapter.setFavoriteQuestionArrayList(mFavoriteQuestionArrayList);
-                mListView.setAdapter(mFavoriteAdapter);
+                mAdapter.setQuestionArrayList(mQuestionArrayList);
+                mListView.setAdapter(mAdapter);
             } else {
                 //質問リストをクリアしてから再度Adapterにセットし、AdapterをListViewにセットし直す
                 mQuestionArrayList.clear();
@@ -288,19 +288,22 @@ public class MainActivity extends AppCompatActivity {
         mAdapter.notifyDataSetChanged();
         Log.d("mAdapter", "mAdapter");
 
+            /*
             mListView = (ListView) findViewById(R.id.listView);
             mFavoriteAdapter = new FavoriteQuestionListAdapter(this);
             mFavoriteQuestionArrayList = new ArrayList<FavoriteQuestion>();
             mFavoriteAdapter.notifyDataSetChanged();
             Log.d("mFavoriteAdapter", "mFavoriteAdapter");
+            */
 
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int postion, long id) {
                 if (mGenre == 5) {
                     // お気に入り一覧画面を起動する
-                    Intent intent = new Intent(getApplicationContext(), FavoriteQuestion.class);
-                    Log.d("Intent","Intent");
+                    Intent intent = new Intent(getApplicationContext(), FavoriteActivity.class);
+                    intent.putExtra("question", mQuestionArrayList.get(postion));
+                    Log.d("main_position", String.valueOf(mQuestionArrayList.get(postion)));
                     startActivity(intent);
                 } else {
                     // Questionのインスタンスを渡して質問詳細画面を起動する

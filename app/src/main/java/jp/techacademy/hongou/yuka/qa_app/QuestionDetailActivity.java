@@ -1,14 +1,11 @@
 package jp.techacademy.hongou.yuka.qa_app;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -22,15 +19,19 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class QuestionDetailActivity extends AppCompatActivity implements View.OnClickListener {
     private ListView mListView;
     private Question mQuestion;
+    private FavoriteQuestion mFavoriteQuestion;
     private QuestionDetailListAdapter mAdapter;
+    private FavoriteQuestionListAdapter mFavoriteAdapter;
+    private ArrayList<FavoriteQuestion> mFavoriteQuestionArrayList;
     boolean mIsFavorite;
+
 
     private ChildEventListener mEventListener = new ChildEventListener() {
         @Override
@@ -80,12 +81,6 @@ public class QuestionDetailActivity extends AppCompatActivity implements View.On
         private ChildEventListener mFavoriteListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Log.d("onChildAdded_favorite", String.valueOf(dataSnapshot));
-
-                String favoriteUid = dataSnapshot.getValue().toString();
-                Log.d("onChildAdded_qUid", String.valueOf(favoriteUid));
-
-                if (favoriteUid.equals(mQuestion.getQuestionUid())) {
                     mIsFavorite = true;
                     Log.d("mIsFavorite3", String.valueOf(mIsFavorite));
 
@@ -94,7 +89,6 @@ public class QuestionDetailActivity extends AppCompatActivity implements View.On
                     mFavoriteButton.setBackgroundColor(Color.GRAY);
                     mFavoriteButton.setVisibility(View.VISIBLE);
                 }
-           }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
@@ -103,14 +97,7 @@ public class QuestionDetailActivity extends AppCompatActivity implements View.On
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-                Log.d("onChildRemoved_favorite",String.valueOf(dataSnapshot));
-                mIsFavorite = false;
 
-                Button mFavoriteButton = (Button) findViewById(R.id.favoriteButton);
-                mFavoriteButton.setText("お気に入りに追加");
-                int color = ContextCompat.getColor(getApplicationContext(), R.color.colorPrimary);
-                mFavoriteButton.setBackgroundColor(color);
-                mFavoriteButton.setVisibility(View.VISIBLE);
                 }
 
             @Override
@@ -130,13 +117,12 @@ public class QuestionDetailActivity extends AppCompatActivity implements View.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_question_detail);
-
         Log.d("onCreate", "onCreate");
 
         //Questionクラスのインスタンスを保持し、タイトルを設定
         Bundle extras = getIntent().getExtras();
         mQuestion = (Question) extras.get("question");
-
+        Log.d("question", String.valueOf(mQuestion));
         setTitle(mQuestion.getTitle());
 
         //ListViewの設定
@@ -149,7 +135,7 @@ public class QuestionDetailActivity extends AppCompatActivity implements View.On
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference favoriteRef = databaseReference.child(Const.FavoritePATH).child(String.valueOf(mQuestion.getQuestionUid()));
+        DatabaseReference favoriteRef = databaseReference.child(Const.FavoritePATH).child(user.getUid()).child(mQuestion.getQuestionUid());
         favoriteRef.addChildEventListener(mFavoriteListener);
 
         if (user == null) {
@@ -188,24 +174,11 @@ public class QuestionDetailActivity extends AppCompatActivity implements View.On
             if (view.getId() == R.id.favoriteButton) {
                 //Firebaseにお気に入り質問UIDを登録
                 DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
-                DatabaseReference favoriteRef = databaseReference.child(Const.FavoritePATH).child(String.valueOf(mQuestion.getQuestionUid()));
-                favoriteRef.addChildEventListener(mFavoriteListener);
+                DatabaseReference favoriteRef = databaseReference.child(Const.FavoritePATH).child(user.getUid()).child(mQuestion.getQuestionUid());
+                //favoriteRef.addChildEventListener(mFavoriteListener);
 
                 Map<String, String> favorite = new HashMap<String, String>();
-                //Question UID
-                favorite.put("questionUid",mQuestion.getQuestionUid());
-
-                //UID
-                favorite.put("Uid", FirebaseAuth.getInstance().getCurrentUser().getUid());
-
-                //Title
-                favorite.put("Title",mQuestion.getTitle());
-
-                //Body
-                favorite.put("Body",mQuestion.getBody());
-
-                //Image
-                //favorite.put("Image", bitmapString);
+                favorite.put("genre", String.valueOf(mQuestion.getGenre()));
 
                 Log.d("mIsFavorite", String.valueOf(mIsFavorite));
 

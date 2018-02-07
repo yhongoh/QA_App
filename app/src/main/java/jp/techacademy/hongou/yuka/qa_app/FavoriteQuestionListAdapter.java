@@ -3,6 +3,7 @@ package jp.techacademy.hongou.yuka.qa_app;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 public class FavoriteQuestionListAdapter extends BaseAdapter {
     private LayoutInflater mLayoutInflater = null;
     private ArrayList<FavoriteQuestion> mFavoriteQuestionArrayList;
+    private FavoriteQuestion favoriteQuestion;
 
     public FavoriteQuestionListAdapter(Context context) {
         mLayoutInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -51,6 +53,7 @@ public class FavoriteQuestionListAdapter extends BaseAdapter {
 
         TextView nameText = (TextView) convertView.findViewById(R.id.nameTextView);
         nameText.setText(mFavoriteQuestionArrayList.get(position).getName());
+        Log.d("name", String.valueOf(nameText));
 
         byte[] bytes = mFavoriteQuestionArrayList.get(position).getImageBytes();
         if (bytes.length != 0) {
