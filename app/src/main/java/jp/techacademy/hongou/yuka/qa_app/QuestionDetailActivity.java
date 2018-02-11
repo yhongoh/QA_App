@@ -28,15 +28,13 @@ public class QuestionDetailActivity extends AppCompatActivity implements View.On
     private Question mQuestion;
     private FavoriteQuestion mFavoriteQuestion;
     private QuestionDetailListAdapter mAdapter;
-    private FavoriteQuestionListAdapter mFavoriteAdapter;
-    private ArrayList<FavoriteQuestion> mFavoriteQuestionArrayList;
     boolean mIsFavorite;
 
 
     private ChildEventListener mEventListener = new ChildEventListener() {
         @Override
         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-            Log.d("onChildAdded_event",String.valueOf(dataSnapshot));
+            Log.d("QDA_onChildAdded_event",String.valueOf(dataSnapshot));
             HashMap map = (HashMap) dataSnapshot.getValue();
 
             String answerUid = dataSnapshot.getKey();
@@ -82,7 +80,7 @@ public class QuestionDetailActivity extends AppCompatActivity implements View.On
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                     mIsFavorite = true;
-                    Log.d("mIsFavorite3", String.valueOf(mIsFavorite));
+                    Log.d("QDA_mIsFavorite3", String.valueOf(mIsFavorite));
 
                     Button mFavoriteButton = (Button) findViewById(R.id.favoriteButton);
                     mFavoriteButton.setText("お気に入りを解除");
@@ -117,12 +115,12 @@ public class QuestionDetailActivity extends AppCompatActivity implements View.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_question_detail);
-        Log.d("onCreate", "onCreate");
+        Log.d("QDA_onCreate", "onCreate");
 
         //Questionクラスのインスタンスを保持し、タイトルを設定
         Bundle extras = getIntent().getExtras();
         mQuestion = (Question) extras.get("question");
-        Log.d("question", String.valueOf(mQuestion));
+        Log.d("QDA_question", String.valueOf(mQuestion));
         setTitle(mQuestion.getTitle());
 
         //ListViewの設定
@@ -163,7 +161,7 @@ public class QuestionDetailActivity extends AppCompatActivity implements View.On
 
     @Override
     public void onClick(View view) {
-        Log.d("onClick", "onClick");
+        Log.d("QDA_onClick", "onClick");
         //ログイン済みのユーザーを取得する
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -180,7 +178,7 @@ public class QuestionDetailActivity extends AppCompatActivity implements View.On
                 Map<String, String> favorite = new HashMap<String, String>();
                 favorite.put("genre", String.valueOf(mQuestion.getGenre()));
 
-                Log.d("mIsFavorite", String.valueOf(mIsFavorite));
+                Log.d("QDA_mIsFavorite", String.valueOf(mIsFavorite));
 
             if (mIsFavorite) {
                 favoriteRef.setValue(null);
@@ -189,7 +187,7 @@ public class QuestionDetailActivity extends AppCompatActivity implements View.On
                 int color = ContextCompat.getColor(getApplicationContext(), R.color.colorPrimary);
                 mFavoriteButton.setBackgroundColor(color);
                 mIsFavorite = false;
-                Log.d("mIsFavorite2",String.valueOf(mIsFavorite));
+                Log.d("QDA_mIsFavorite2",String.valueOf(mIsFavorite));
 
             } else {
                 favoriteRef.setValue(favorite);
@@ -197,7 +195,7 @@ public class QuestionDetailActivity extends AppCompatActivity implements View.On
                 mFavoriteButton.setText("お気に入りを解除");
                 mFavoriteButton.setBackgroundColor(Color.GRAY);
                 mIsFavorite = true;
-                Log.d("mIsFavorite2",String.valueOf(mIsFavorite));
+                Log.d("QDA_mIsFavorite4",String.valueOf(mIsFavorite));
             }
             } else {
                 // Questionを渡して回答作成画面を起動する

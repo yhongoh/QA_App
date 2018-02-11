@@ -1,12 +1,10 @@
 package jp.techacademy.hongou.yuka.qa_app;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -18,7 +16,6 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.ListView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -32,12 +29,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-
 public class MainActivity extends AppCompatActivity {
 
     private Toolbar mToolbar;
     private int mGenre = 0;
-    private int mFavorite;
 
     private DatabaseReference mDatabaseReference;
     private DatabaseReference mGenreRef;
@@ -45,15 +40,12 @@ public class MainActivity extends AppCompatActivity {
     private ListView mListView;
     private ArrayList<Question> mQuestionArrayList;
     private QuestionsListAdapter mAdapter;
-    private ArrayList<FavoriteQuestion> mFavoriteQuestionArrayList;
-    private FavoriteQuestionListAdapter mFavoriteAdapter;
-    private Question mQuestion;
+    private HashMap<String, String> fav_data;
 
 
     private ChildEventListener mEventListener = new ChildEventListener() {
         @Override
         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-            Log.d("Main_onChildAdded", String.valueOf(dataSnapshot));
             HashMap map = (HashMap) dataSnapshot.getValue();
             String title = (String) map.get("title");
             String body = (String) map.get("body");
@@ -77,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
                     String answerUid = (String) temp.get("uid");
                     Answer answer = new Answer(answerBody, answerName, answerUid, (String) key);
                     answerArrayList.add(answer);
+
                 }
             }
 
@@ -98,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
                     if (answerMap != null) {
                         for (Object key : answerMap.keySet()) {
                             HashMap temp = (HashMap) answerMap.get((String) key);
+                            Log.d("Main_temp", String.valueOf(temp));
                             String answerBody = (String) temp.get("body");
                             String answerName = (String) temp.get("name");
                             String answerUid = (String) temp.get("uid");
@@ -113,50 +107,6 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onChildRemoved(DataSnapshot dataSnapshot) {
 
-        }
-
-        @Override
-        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-        }
-
-        @Override
-        public void onCancelled(DatabaseError databaseError) {
-
-        }
-    };
-
-    private ChildEventListener mFavoriteListener = new ChildEventListener() {
-        @Override
-        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-            Log.d("Main_onChildAdded_fav", String.valueOf(dataSnapshot));
-
-            HashMap map = (HashMap) dataSnapshot.getValue();
-            String title = (String) map.get("Title");
-            String body = (String) map.get("Body");
-            String name = (String) map.get("Name");
-            String uid = (String) map.get("Uid");
-            String imageString = (String) map.get("Image");
-            byte[] bytes;
-            if (imageString != null) {
-                bytes = Base64.decode(imageString, Base64.DEFAULT);
-            } else {
-                bytes = new byte[0];
-            }
-
-            FavoriteQuestion favoriteQuestion = new FavoriteQuestion(title, body, name,uid, dataSnapshot.getKey(), bytes);
-            mFavoriteQuestionArrayList.add(favoriteQuestion);
-            mFavoriteAdapter.notifyDataSetChanged();
-        }
-
-        @Override
-        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-        }
-
-        @Override
-        public void onChildRemoved(DataSnapshot dataSnapshot) {
-            mFavoriteAdapter.notifyDataSetChanged();
         }
 
         @Override
@@ -221,62 +171,52 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-    navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener(){
+    navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
         @Override
-        public boolean onNavigationItemSelected (MenuItem item){
-        int id = item.getItemId();
+        public boolean onNavigationItemSelected(MenuItem item) {
+            int id = item.getItemId();
 
-        if (id == R.id.nav_hobby) {
-            mToolbar.setTitle("趣味");
-            mGenre = 1;
-        }else if (id == R.id.nav_life) {
-            mToolbar.setTitle("生活");
-            mGenre = 2;
-        } else if (id == R.id.nav_health) {
-            mToolbar.setTitle("健康");
-            mGenre = 3;
-        } else if (id == R.id.nav_computer) {
-            mToolbar.setTitle("コンピューター");
-            mGenre = 4;
-        } else if (id == R.id.nav_favorite) {
+            if (id == R.id.nav_hobby) {
+                mToolbar.setTitle("趣味");
+                mGenre = 1;
+            } else if (id == R.id.nav_life) {
+                mToolbar.setTitle("生活");
+                mGenre = 2;
+            } else if (id == R.id.nav_health) {
+                mToolbar.setTitle("健康");
+                mGenre = 3;
+            } else if (id == R.id.nav_computer) {
+                mToolbar.setTitle("コンピューター");
+                mGenre = 4;
+            } else if (id == R.id.nav_favorite) {
                 mToolbar.setTitle("お気に入り");
-                mGenre = 5;}
-
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-
-
-            if (mGenre == 5) {
-                //お気に入り質問のリストをクリアしてから再度Adapterにセットし、AdapterをListViewにセットし直す
-                mQuestionArrayList.clear();
-                Log.d("clear2", "clear2");
-                mAdapter.setQuestionArrayList(mQuestionArrayList);
-                mListView.setAdapter(mAdapter);
-            } else {
-                //質問リストをクリアしてから再度Adapterにセットし、AdapterをListViewにセットし直す
-                mQuestionArrayList.clear();
-                Log.d("clear1", "clear1");
-                mAdapter.setQuestionArrayList(mQuestionArrayList);
-                mListView.setAdapter(mAdapter);
+                mGenre = 5;
             }
+
+
+            DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+            drawer.closeDrawer(GravityCompat.START);
+
+            //質問リストをクリアしてから再度Adapterにセットし、AdapterをListViewにセットし直す
+            mQuestionArrayList.clear();
+            mAdapter.setQuestionArrayList(mQuestionArrayList);
+            Log.d("Main_SQAL","SQAL");
+            mListView.setAdapter(mAdapter);
 
             //選択したジャンルにリスナーを登録する
             if (mGenreRef != null) {
                 mGenreRef.removeEventListener(mEventListener);
             }
 
-            if (mGenre != 5){
-            mGenreRef = mDatabaseReference.child(Const.ContentsPATH).child(String.valueOf(mGenre));
-            Log.d("Main_mGenreRef", String.valueOf(mGenreRef));
-            mGenreRef.addChildEventListener(mEventListener);
-            return true;}
-            else {
-                favoriteRef = mDatabaseReference.child(Const.FavoritePATH);
-                Log.d("Main_favoriteRef", String.valueOf(favoriteRef));
-                favoriteRef.addChildEventListener(mFavoriteListener);
+            if (mGenre != 5) {
+                mGenreRef = mDatabaseReference.child(Const.ContentsPATH).child(String.valueOf(mGenre));
+                mGenreRef.addChildEventListener(mEventListener);
                 return true;
+            } else {
+                Intent intent = new Intent(getApplicationContext(), FavoriteActivity.class);
+                startActivity(intent);
             }
+            return true;
         }
     });
 
@@ -286,32 +226,19 @@ public class MainActivity extends AppCompatActivity {
         mAdapter = new QuestionsListAdapter(this);
         mQuestionArrayList = new ArrayList<Question>();
         mAdapter.notifyDataSetChanged();
-        Log.d("mAdapter", "mAdapter");
+        Log.d("Main_mAdapter", "mAdapter");
 
-            /*
-            mListView = (ListView) findViewById(R.id.listView);
-            mFavoriteAdapter = new FavoriteQuestionListAdapter(this);
-            mFavoriteQuestionArrayList = new ArrayList<FavoriteQuestion>();
-            mFavoriteAdapter.notifyDataSetChanged();
-            Log.d("mFavoriteAdapter", "mFavoriteAdapter");
-            */
 
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int postion, long id) {
-                if (mGenre == 5) {
-                    // お気に入り一覧画面を起動する
-                    Intent intent = new Intent(getApplicationContext(), FavoriteActivity.class);
-                    intent.putExtra("question", mQuestionArrayList.get(postion));
-                    Log.d("main_position", String.valueOf(mQuestionArrayList.get(postion)));
-                    startActivity(intent);
-                } else {
+
                     // Questionのインスタンスを渡して質問詳細画面を起動する
                     Intent intent = new Intent(getApplicationContext(), QuestionDetailActivity.class);
                     intent.putExtra("question", mQuestionArrayList.get(postion));
+                    Log.d("Main_toQDA","Main_toQDA");
                     startActivity(intent);
                 }
-            }
         });
 
 }
@@ -319,7 +246,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d("onResume", "onResume");
+        Log.d("Main_onResume", "onResume");
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
 

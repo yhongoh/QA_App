@@ -47,11 +47,13 @@ public class Question implements Serializable {
         return mBitmapArray;
     }
 
+
     public ArrayList<Answer> getAnswers(){
         return mAnswerArrayList;
     }
 
-    public Question(String title, String body, String name, String uid, String questionUid, int genre, byte[] bytes, ArrayList<Answer> answers) {
+
+    public Question(String title, String body, String name, String uid, String questionUid, int genre, byte[] bytes,ArrayList<Answer> answers) {
         mTitle = title;
         mBody = body;
         mName = name;
@@ -60,6 +62,10 @@ public class Question implements Serializable {
         mGenre = genre;
         mBitmapArray = bytes.clone();
         mAnswerArrayList = answers;
-        Log.d("mTitle", String.valueOf(mTitle));
+        Log.d("Ques_title", String.valueOf(mTitle));
+        Log.d("Ques_body", String.valueOf(mBody));
+        Log.d("Ques_name", String.valueOf(mName));
+        Log.d("Ques_uid", String.valueOf(mUid));
+        Log.d("Ques_qUid", String.valueOf(mQuestionUid));
     }
 }

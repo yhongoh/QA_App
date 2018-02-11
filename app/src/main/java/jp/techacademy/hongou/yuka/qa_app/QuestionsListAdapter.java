@@ -19,6 +19,7 @@ import java.util.ArrayList;
 public class QuestionsListAdapter extends BaseAdapter {
     private LayoutInflater mLayoutInflater = null;
     private ArrayList<Question> mQuestionArrayList;
+    int mGenre;
 
     public QuestionsListAdapter(Context context) {
         mLayoutInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -52,9 +53,9 @@ public class QuestionsListAdapter extends BaseAdapter {
         TextView nameText = (TextView) convertView.findViewById(R.id.nameTextView);
         nameText.setText(mQuestionArrayList.get(position).getName());
 
-        TextView resText = (TextView) convertView.findViewById(R.id.resTextView);
-        int resNum = mQuestionArrayList.get(position).getAnswers().size();
-        resText.setText(String.valueOf(resNum));
+        //TextView resText = (TextView) convertView.findViewById(R.id.resTextView);
+        //int resNum = mQuestionArrayList.get(position).getAnswers().size();
+        //resText.setText(String.valueOf(resNum));
 
         byte[] bytes = mQuestionArrayList.get(position).getImageBytes();
         if (bytes.length != 0) {

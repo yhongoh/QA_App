@@ -9,10 +9,11 @@ public class FavoriteQuestion implements Serializable {
     private String mName;
     private String mUid;
     private String mQuestionUid;
-    //private int mGenre;
+    private int mGenre;
     private byte[] mBitmapArray;
-    //private ArrayList<Answer> mAnswerArrayList;
 
+
+    /*
     public String getTitle(){
         return mTitle;
     }
@@ -24,6 +25,7 @@ public class FavoriteQuestion implements Serializable {
     public String getName(){
         return mName;
     }
+    */
 
     public String getUid(){
         return mUid;
@@ -33,28 +35,24 @@ public class FavoriteQuestion implements Serializable {
         return mQuestionUid;
     }
 
-    /*
     public int getGenre(){
         return mGenre;
     }
-    */
 
+    /*
     public byte[] getImageBytes(){
         return mBitmapArray;
     }
 
-    /*
+
     public ArrayList<Answer> getAnswers(){
         return mAnswerArrayList;
     }
     */
 
-    public FavoriteQuestion(String title, String body, String name, String uid, String questionUid, byte[] bytes) {
-        mTitle = title;
-        mBody = body;
-        mName = name;
-        mUid = uid;
+    public FavoriteQuestion(String questionUid, int genre) {
+        //mUid = uid;
         mQuestionUid = questionUid;
-        mBitmapArray = bytes.clone();
+        mGenre = genre;
     }
 }
