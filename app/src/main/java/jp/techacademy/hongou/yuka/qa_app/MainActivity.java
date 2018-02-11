@@ -36,12 +36,9 @@ public class MainActivity extends AppCompatActivity {
 
     private DatabaseReference mDatabaseReference;
     private DatabaseReference mGenreRef;
-    private DatabaseReference favoriteRef;
     private ListView mListView;
     private ArrayList<Question> mQuestionArrayList;
     private QuestionsListAdapter mAdapter;
-    private HashMap<String, String> fav_data;
-
 
     private ChildEventListener mEventListener = new ChildEventListener() {
         @Override
@@ -200,7 +197,6 @@ public class MainActivity extends AppCompatActivity {
             //質問リストをクリアしてから再度Adapterにセットし、AdapterをListViewにセットし直す
             mQuestionArrayList.clear();
             mAdapter.setQuestionArrayList(mQuestionArrayList);
-            Log.d("Main_SQAL","SQAL");
             mListView.setAdapter(mAdapter);
 
             //選択したジャンルにリスナーを登録する
@@ -236,7 +232,6 @@ public class MainActivity extends AppCompatActivity {
                     // Questionのインスタンスを渡して質問詳細画面を起動する
                     Intent intent = new Intent(getApplicationContext(), QuestionDetailActivity.class);
                     intent.putExtra("question", mQuestionArrayList.get(postion));
-                    Log.d("Main_toQDA","Main_toQDA");
                     startActivity(intent);
                 }
         });

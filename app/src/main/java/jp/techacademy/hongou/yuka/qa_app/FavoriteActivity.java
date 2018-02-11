@@ -1,10 +1,12 @@
 package jp.techacademy.hongou.yuka.qa_app;
 
 import android.content.Intent;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -19,7 +21,6 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 
@@ -27,18 +28,11 @@ public class FavoriteActivity extends AppCompatActivity {
     private int mGenre = 0;
 
     private DatabaseReference mDatabaseReference;
-    private DatabaseReference mGenreRef;
     private DatabaseReference mFavGenreRef;
-    private DatabaseReference mContentsRef;
     private DatabaseReference favoriteRef;
     private ListView mListView;
     private ArrayList<Question> mQuestionArrayList;
     private QuestionsListAdapter mAdapter;
-    private HashMap fav_data;
-    private String favId;
-    private String favGenre;
-    private String genre;
-    private String mQuestionUid;
     private ArrayList<String> mFavoriteQuestionUidList;
 
 
@@ -52,9 +46,9 @@ public class FavoriteActivity extends AppCompatActivity {
 
                if (mFavoriteQuestionUidList.contains(question.getQuestionUid())) {
                    mQuestionArrayList.add(question);
-                   Log.d("FA_mQAL", String.valueOf(question));
                }
             }
+            mAdapter.notifyDataSetChanged();
         }
 
         // HashMapのデータをQuestionオブジェクトに変換する
@@ -99,6 +93,7 @@ public class FavoriteActivity extends AppCompatActivity {
                     if (answerMap != null) {
                         for (Object key : answerMap.keySet()) {
                             HashMap temp = (HashMap) answerMap.get((String) key);
+                            Log.d("Main_temp", String.valueOf(temp));
                             String answerBody = (String) temp.get("body");
                             String answerName = (String) temp.get("name");
                             String answerUid = (String) temp.get("uid");
@@ -109,7 +104,6 @@ public class FavoriteActivity extends AppCompatActivity {
                     mAdapter.notifyDataSetChanged();
                 }
             }
-
         }
 
         @Override
@@ -131,11 +125,8 @@ public class FavoriteActivity extends AppCompatActivity {
     private ChildEventListener mFavoriteListener = new ChildEventListener() {
         @Override
         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-           HashMap<String, String> fav_data = new HashMap<String, String>();
-            fav_data.put("favId",String.valueOf(dataSnapshot.getKey()));
-            fav_data.put("favGenre", String.valueOf(dataSnapshot.child("genre").getValue()));
-            List<String> mFavoriteQuestionUidList = new ArrayList<>(fav_data.values());
-            Log.d("mFavQUL", String.valueOf(mFavoriteQuestionUidList));
+            mFavoriteQuestionUidList.add(dataSnapshot.getKey());
+            mAdapter.notifyDataSetChanged();
             }
 
         @Override
@@ -145,8 +136,9 @@ public class FavoriteActivity extends AppCompatActivity {
 
         @Override
         public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-        }
+            mFavoriteQuestionUidList.remove(dataSnapshot.getKey());
+            mAdapter.notifyDataSetChanged();
+            }
 
         @Override
         public void onChildMoved(DataSnapshot dataSnapshot, String s) {
@@ -157,7 +149,6 @@ public class FavoriteActivity extends AppCompatActivity {
         public void onCancelled(DatabaseError databaseError) {
 
         }
-
     };
 
 
@@ -166,22 +157,20 @@ public class FavoriteActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_favorite);
         setTitle("お気に入り");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        mFavoriteQuestionUidList = new ArrayList<>();
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         mDatabaseReference = FirebaseDatabase.getInstance().getReference();
         favoriteRef = mDatabaseReference.child(Const.FavoritePATH).child(user.getUid());
-        favoriteRef.addChildEventListener(mFavoriteListener);
 
         mFavGenreRef = mDatabaseReference.child(Const.ContentsPATH);
-        mFavGenreRef.addChildEventListener(mEventListener);
 
         mListView = (ListView) findViewById(R.id.listView);
         mAdapter = new QuestionsListAdapter(this);
         mQuestionArrayList = new ArrayList<Question>();
-        //mAdapter.notifyDataSetChanged();
-        Log.d("fav_mAdapter", "mAdapter");
-        mAdapter.setQuestionArrayList(mQuestionArrayList);
-        mListView.setAdapter(mAdapter);
+
 
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
@@ -193,5 +182,29 @@ public class FavoriteActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        switch(item.getItemId()){
+        case android.R.id.home:
+            Intent upIntent = NavUtils.getParentActivityIntent(this);
+            NavUtils.navigateUpTo(this, upIntent);
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        favoriteRef.addChildEventListener(mFavoriteListener);
+        mFavGenreRef.addChildEventListener(mEventListener);
+
+        mQuestionArrayList.clear();
+        mAdapter.notifyDataSetChanged();
+        mAdapter.setQuestionArrayList(mQuestionArrayList);
+        mListView.setAdapter(mAdapter);
     }
 }
